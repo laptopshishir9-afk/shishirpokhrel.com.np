@@ -35,6 +35,7 @@ import {
   loginSingleSeat,
   logoutSingleSeat,
   updateSecretPassword,
+  MASTER_SECRET_PASSWORD,
 } from '../utils/messagesManager';
 import {
   saveStoredProfilePhoto,
@@ -45,6 +46,7 @@ import {
   subscribeSchoolLogo,
   subscribeProfilePhoto,
   DEFAULT_PHOTO_PATHS,
+  downloadDataUrlFile,
 } from '../utils/photoManager';
 
 interface OwnerBackendSectionProps {
@@ -312,125 +314,68 @@ export const OwnerBackendSection: React.FC<OwnerBackendSectionProps> = ({ onBack
                   </div>
                 )}
 
-                {/* CASE 1: FIRST-TIME SETUP (NO PASSWORD CREATED YET) */}
-                {!hasPassword ? (
-                  <form onSubmit={handleCreateSecretPassword} className="space-y-5">
-                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-200 text-xs sm:text-sm leading-relaxed">
-                      <strong className="text-amber-300 font-bold block mb-1">
-                        First-Time Owner Setup: Create Your Secret Password
-                      </strong>
-                      To ensure total privacy, no pre-set password exists. Choose your own personal secret password below. Only you will know it.
+                {/* PERMANENTLY LOCKED LOGIN FORM (ACROSS ALL DEVICES: MOBILE, LAPTOP, DESKTOP) */}
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-200 text-xs sm:text-sm leading-relaxed">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold mb-1">
+                      <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>Single Owner Seat Locked Across All Devices</span>
                     </div>
+                    <span>
+                      This seat is exclusively reserved for <strong>Shishir Pokhrel</strong>. To access from your phone or laptop, enter your secret password below.
+                    </span>
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1.5" htmlFor="create-secret-password">
-                        Choose Your Secret Password
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold text-slate-300" htmlFor="admin-secret-password">
+                        Enter Secret Master Password
                       </label>
-                      <div className="relative">
-                        <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                        <input
-                          id="create-secret-password"
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          value={newSetupPassword}
-                          onChange={(e) => setNewSetupPassword(e.target.value)}
-                          placeholder="Create your private secret password"
-                          className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
+                      <span className="text-[11px] text-amber-300/90 font-medium">Active on Mobile & Laptop</span>
                     </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1.5" htmlFor="confirm-secret-password">
-                        Confirm Secret Password
-                      </label>
-                      <div className="relative">
-                        <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                        <input
-                          id="confirm-secret-password"
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          value={confirmSetupPassword}
-                          onChange={(e) => setConfirmSetupPassword(e.target.value)}
-                          placeholder="Re-type your secret password"
-                          className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-500"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      id="save-secret-password-btn"
-                      className="w-full py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 font-extrabold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Lock className="w-4 h-4" />
-                      <span>Save My Secret Password & Enter Seat</span>
-                    </button>
-                  </form>
-                ) : (
-                  /* CASE 2: REGULAR LOGIN (PASSWORD HAS BEEN SET BY SHISHIR) */
-                  <form onSubmit={handleLogin} className="space-y-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="block text-xs font-bold text-slate-300" htmlFor="admin-secret-password">
-                          Enter Your Secret Password
-                        </label>
-                        <span className="text-[11px] text-amber-300/90">Personal Secret Password</span>
-                      </div>
-                      <div className="relative">
-                        <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                        <input
-                          id="admin-secret-password"
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          value={passwordInput}
-                          onChange={(e) => setPasswordInput(e.target.value)}
-                          placeholder="Your secret password"
-                          className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-500"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-blue-950/50 border border-blue-800/60 text-xs text-sky-300 flex items-center justify-between">
-                      <span>
-                        Single Seat Owner: <code className="text-amber-300">Shishir Pokhrel</code>
-                      </span>
+                    <div className="relative">
+                      <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <input
+                        id="admin-secret-password"
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        placeholder="Enter your secret password"
+                        className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-500"
+                      />
                       <button
                         type="button"
-                        onClick={() => {
-                          setHasPassword(false);
-                          setLoginError(null);
-                        }}
-                        className="text-[11px] text-amber-400 hover:underline cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white cursor-pointer"
                       >
-                        Reset / Set New Password
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                  </div>
 
-                    <button
-                      type="submit"
-                      id="admin-login-submit-btn"
-                      className="w-full py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 font-extrabold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Unlock className="w-4 h-4" />
-                      <span>Authenticate & Access Seat</span>
-                    </button>
-                  </form>
-                )}
+                  <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400">Master Secret Key:</span>
+                      <code className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono font-bold text-xs">
+                        {MASTER_SECRET_PASSWORD}
+                      </code>
+                    </div>
+                    <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Universal Cross-Device Verification</span>
+                    </span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    id="admin-login-submit-btn"
+                    className="w-full py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 font-extrabold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Unlock className="w-4 h-4" />
+                    <span>Authenticate & Access Seat</span>
+                  </button>
+                </form>
               </motion.div>
             ) : (
               /* =========================================================================
@@ -683,16 +628,33 @@ export const OwnerBackendSection: React.FC<OwnerBackendSectionProps> = ({ onBack
                           </label>
 
                           {schoolLogo && (
-                            <button
-                              type="button"
-                              onClick={handleRemoveSchoolLogo}
-                              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 border border-slate-700 text-rose-300 text-xs font-bold transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Remove College Logo</span>
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => downloadDataUrlFile(schoolLogo, 'college-logo.png')}
+                                className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 text-xs font-bold transition-colors cursor-pointer"
+                                title="Download as college-logo.png for your GitHub repository"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span>Download college-logo.png for Mobile & All Devices</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={handleRemoveSchoolLogo}
+                                className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 border border-slate-700 text-rose-300 text-xs font-bold transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Remove College Logo</span>
+                              </button>
+                            </>
                           )}
                         </div>
+                      </div>
+
+                      <div className="mt-4 p-3 rounded-xl bg-blue-950/40 border border-blue-800/60 text-xs text-sky-200 leading-relaxed">
+                        <strong className="text-amber-300 block mb-0.5">Why wasn't the logo showing on mobile?</strong>
+                        Browser uploads stay in the laptop's memory. To make your college logo display permanently on your mobile and for all visitors on GitHub Pages: click <strong>"Download college-logo.png"</strong> above, and save it inside your repository's <code>public/assets/</code> and <code>docs/assets/</code> folders.
                       </div>
                     </div>
 
@@ -703,7 +665,7 @@ export const OwnerBackendSection: React.FC<OwnerBackendSectionProps> = ({ onBack
                         <h4 className="font-bold text-sm text-white">Owner Profile Photo Update</h4>
                       </div>
                       <p className="text-xs text-slate-400 mb-4">
-                        Upload your real photograph here. It will immediately update across your circular hero frame, navbar, and About Me page.
+                        Upload your real photograph here. It immediately updates in your circle frame, navbar, and About Me page on this device.
                       </p>
 
                       {photoSavedSuccess && (
@@ -727,16 +689,35 @@ export const OwnerBackendSection: React.FC<OwnerBackendSectionProps> = ({ onBack
                           )}
                         </div>
 
-                        <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 font-extrabold text-xs cursor-pointer transition-colors">
-                          <Camera className="w-4 h-4" />
-                          <span>Select New Photo File</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleOwnerPhotoUpload}
-                            className="hidden"
-                          />
-                        </label>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-blue-950 font-extrabold text-xs cursor-pointer transition-colors">
+                            <Camera className="w-4 h-4" />
+                            <span>Select New Photo File</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleOwnerPhotoUpload}
+                              className="hidden"
+                            />
+                          </label>
+
+                          {ownerPhoto && (
+                            <button
+                              type="button"
+                              onClick={() => downloadDataUrlFile(ownerPhoto, 'shishir-photo.jpg')}
+                              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                              title="Download as shishir-photo.jpg for your GitHub repository"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Download shishir-photo.jpg for Mobile & All Devices</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 p-3 rounded-xl bg-blue-950/40 border border-blue-800/60 text-xs text-sky-200 leading-relaxed">
+                        <strong className="text-amber-300 block mb-0.5">Why wasn't your photo showing on mobile?</strong>
+                        On GitHub Pages, client-side file uploads only exist in the browser you uploaded from (your laptop). To make your photo show on your <strong>mobile phone, tablet, and every visitor's screen</strong>: click <strong>"Download shishir-photo.jpg"</strong>, and place that file into your repository's <code>public/assets/</code> and <code>docs/assets/</code> folders!
                       </div>
                     </div>
 

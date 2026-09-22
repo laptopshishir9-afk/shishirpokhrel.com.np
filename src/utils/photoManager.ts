@@ -7,12 +7,29 @@ const EVENT_NAME = 'shishir_photo_updated';
 const SCHOOL_LOGO_KEY = 'shishir_school_logo_data';
 const SCHOOL_LOGO_EVENT = 'shishir_school_logo_updated';
 
-// Possible fallback paths if the user placed an image in the project
+// Universal relative paths that work seamlessly on GitHub Pages (e.g. /Shishir-Pokhrel-Website/)
+// as well as local preview and production root.
+const baseUrl = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL ? import.meta.env.BASE_URL : './';
+const prefix = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
 export const DEFAULT_PHOTO_PATHS = [
-  '/assets/shishir-photo.jpg',
-  '/assets/profile.jpg',
-  '/shishir-photo.jpg',
-  '/profile.jpg',
+  `${prefix}assets/shishir-photo.jpg`,
+  `${prefix}assets/shishir-photo.png`,
+  `${prefix}assets/shishir-avatar.svg`,
+  `${prefix}assets/profile.jpg`,
+  './assets/shishir-photo.jpg',
+  './assets/shishir-avatar.svg',
+  'assets/shishir-photo.jpg',
+];
+
+export const DEFAULT_COLLEGE_LOGO_PATHS = [
+  `${prefix}assets/college-logo.png`,
+  `${prefix}assets/college-logo.jpg`,
+  `${prefix}assets/everest-logo.svg`,
+  `${prefix}assets/school-logo.png`,
+  './assets/college-logo.png',
+  './assets/everest-logo.svg',
+  'assets/college-logo.png',
 ];
 
 export function getStoredProfilePhoto(): string | null {
@@ -30,6 +47,16 @@ export function saveStoredProfilePhoto(dataUrl: string): void {
   }
 }
 
+export function removeStoredProfilePhoto(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: null }));
+  } catch (err) {
+    console.error('Failed to remove profile photo', err);
+  }
+}
+
 export function subscribeProfilePhoto(callback: (photoUrl: string | null) => void): () => void {
   if (typeof window === 'undefined') return () => {};
 
@@ -43,7 +70,7 @@ export function subscribeProfilePhoto(callback: (photoUrl: string | null) => voi
 }
 
 // ---------------------------------------------------------------------------
-// SCHOOL LOGO MANAGER (ONLY ACCESSIBLE VIA AUTHENTICATED OWNER SEAT)
+// COLLEGE / SCHOOL LOGO MANAGER (ACCESSIBLE ACROSS ALL PAGES)
 // ---------------------------------------------------------------------------
 
 export function getStoredSchoolLogo(): string | null {
@@ -81,5 +108,15 @@ export function subscribeSchoolLogo(callback: (logoUrl: string | null) => void):
 
   window.addEventListener(SCHOOL_LOGO_EVENT, handleUpdate);
   return () => window.removeEventListener(SCHOOL_LOGO_EVENT, handleUpdate);
+}
+
+// Helper to trigger browser download of dataURL as a file for GitHub repository
+export function downloadDataUrlFile(dataUrl: string, filename: string): void {
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 

@@ -140,13 +140,17 @@ export function subscribeVisitorMessages(callback: (messages: VisitorMessage[]) 
 }
 
 // -------------------------------------------------------------
-// SINGLE SEAT AUTHENTICATION (USER-DEFINED SECRET PASSWORD)
+// SINGLE SEAT AUTHENTICATION (SECURED ACROSS ALL DEVICES)
 // -------------------------------------------------------------
 
+// Master secret password configured for Shishir Pokhrel.
+// This password is active across ALL devices (Mobile, Laptop, Desktop).
+export const MASTER_SECRET_PASSWORD = 'ShishirPokhrel#2026';
+
 export function hasAdminPasswordSet(): boolean {
-  if (typeof window === 'undefined') return false;
-  const stored = localStorage.getItem(ADMIN_PASSWORD_KEY);
-  return Boolean(stored && stored.trim().length > 0);
+  // Always returns true so no mobile phone, tablet, or random visitor
+  // ever sees an open "Create Password" screen. The seat is always locked.
+  return true;
 }
 
 export function setupFirstTimeSecretPassword(newPassword: string): boolean {
@@ -174,23 +178,21 @@ export function loginSingleSeat(enteredPassword: string): { success: boolean; er
     return { success: false, error: 'Browser environment required.' };
   }
 
+  const clean = enteredPassword.trim();
   const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
 
-  if (!storedPassword) {
-    return {
-      success: false,
-      error: 'No secret password has been created yet. Please create your secret password first.',
-    };
-  }
+  // Authenticate against custom user password OR master secret password
+  const matchesCustom = storedPassword && clean === storedPassword.trim();
+  const matchesMaster = clean === MASTER_SECRET_PASSWORD;
 
-  if (enteredPassword.trim() === storedPassword.trim()) {
+  if (matchesCustom || matchesMaster) {
     sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
     return { success: true };
   }
 
   return {
     success: false,
-    error: 'Incorrect secret password. Please try again.',
+    error: 'Incorrect secret password. Access denied.',
   };
 }
 
@@ -198,10 +200,15 @@ export function updateSecretPassword(
   oldPassword: string,
   newPassword: string
 ): { success: boolean; error?: string } {
+  const cleanOld = oldPassword.trim();
   const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
 
-  if (storedPassword && oldPassword.trim() !== storedPassword.trim()) {
-    return { success: false, error: 'Current password does not match.' };
+  const isOldValid =
+    (storedPassword && cleanOld === storedPassword.trim()) ||
+    cleanOld === MASTER_SECRET_PASSWORD;
+
+  if (!isOldValid) {
+    return { success: false, error: 'Current secret password does not match.' };
   }
 
   if (newPassword.trim().length < 3) {

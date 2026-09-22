@@ -2,14 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { GraduationCap, Award, BookOpen, MapPin, Star } from 'lucide-react';
 import { EDUCATION_DATA } from '../data/portfolioData';
-import { getStoredSchoolLogo, subscribeSchoolLogo } from '../utils/photoManager';
+import {
+  getStoredSchoolLogo,
+  subscribeSchoolLogo,
+  DEFAULT_COLLEGE_LOGO_PATHS,
+} from '../utils/photoManager';
 
 export const EducationSection: React.FC = () => {
-  const [logoSrc, setLogoSrc] = useState<string | null>(() => getStoredSchoolLogo());
+  const [logoSrc, setLogoSrc] = useState<string | null>(
+    () => getStoredSchoolLogo() || DEFAULT_COLLEGE_LOGO_PATHS[0]
+  );
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeSchoolLogo((newLogo) => {
-      setLogoSrc(newLogo);
+      setLogoSrc(newLogo || DEFAULT_COLLEGE_LOGO_PATHS[0]);
+      setLogoError(false);
     });
     return unsubscribe;
   }, []);
@@ -49,10 +57,11 @@ export const EducationSection: React.FC = () => {
                 id="school-logo-reserved-area"
                 className="w-44 h-44 sm:w-48 sm:h-48 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/40 flex flex-col items-center justify-center p-4 relative group hover:border-blue-400 transition-colors"
               >
-                {logoSrc ? (
+                {logoSrc && !logoError ? (
                   <img
                     src={logoSrc}
                     alt="Everest English Boarding Secondary School & College Logo"
+                    onError={() => setLogoError(true)}
                     className="w-full h-full object-contain"
                   />
                 ) : (
