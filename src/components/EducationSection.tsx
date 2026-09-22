@@ -116,9 +116,9 @@ export const EducationSection: React.FC = () => {
                 </div>
                 <div className="col-span-2 sm:col-span-1 p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-2xs">
                   <span className="text-xs font-extrabold uppercase text-amber-900 block">Academic Milestone</span>
-                  <span className="text-base font-extrabold text-amber-950 mt-1 flex items-center gap-1.5">
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
-                    Passed with A+
+                  <span className="text-sm sm:text-base font-extrabold text-amber-950 mt-1 flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-400 shrink-0" />
+                    <span>Passed SEE Examination with A+</span>
                   </span>
                 </div>
               </div>

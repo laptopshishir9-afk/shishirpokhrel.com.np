@@ -145,7 +145,7 @@ export function subscribeVisitorMessages(callback: (messages: VisitorMessage[]) 
 
 // Master secret password configured for Shishir Pokhrel.
 // This password is active across ALL devices (Mobile, Laptop, Desktop).
-export const MASTER_SECRET_PASSWORD = 'ShishirPokhrel#2026';
+export const MASTER_SECRET_PASSWORD = 'Shishir@2010';
 
 export function hasAdminPasswordSet(): boolean {
   // Always returns true so no mobile phone, tablet, or random visitor

@@ -69,7 +69,7 @@ export const EDUCATION_DATA: EducationInfo = {
     "Nepali",
     "English"
   ],
-  previousGrade: "Passed previous level with A+ grade."
+  previousGrade: "Passed SEE Examination with A+ Grade."
 };
 
 export const SKILLS_CATEGORIZED = {
@@ -328,10 +328,10 @@ export const PLANNED_VIDEO_EDITS = VIDEO_EDIT_ITEMS;
 export const ACHIEVEMENTS_DATA = [
   {
     id: "aplus-grade",
-    title: "Passed Previous Level with A+ Grade",
+    title: "Passed SEE Examination with A+ Grade",
     category: "Academic",
     organization: "Everest English Boarding Secondary School",
-    description: "Successfully achieved an A+ grade in previous secondary schooling level, qualifying for Class 11 Computer Science faculty.",
+    description: "Successfully achieved an A+ grade in the Secondary Education Examination (SEE), qualifying for Class 11 Computer Science faculty.",
     verified: true,
   },
 ];

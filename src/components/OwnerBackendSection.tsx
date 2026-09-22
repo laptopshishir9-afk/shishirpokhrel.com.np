@@ -35,7 +35,6 @@ import {
   loginSingleSeat,
   logoutSingleSeat,
   updateSecretPassword,
-  MASTER_SECRET_PASSWORD,
 } from '../utils/messagesManager';
 import {
   saveStoredProfilePhoto,
@@ -354,16 +353,13 @@ export const OwnerBackendSection: React.FC<OwnerBackendSectionProps> = ({ onBack
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">Master Secret Key:</span>
-                      <code className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono font-bold text-xs">
-                        {MASTER_SECRET_PASSWORD}
-                      </code>
-                    </div>
+                  <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-slate-300 flex items-center justify-between gap-2">
+                    <span className="text-slate-400 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>Owner Seat Authentication</span>
+                    </span>
                     <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Universal Cross-Device Verification</span>
+                      <span>Cross-Device Verification Active</span>
                     </span>
                   </div>
 
